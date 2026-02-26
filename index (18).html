@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>DidIEatToday? ft. Nibble 🐹</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&family=Nunito:ital,wght@0,400;0,600;0,700;0,800;1,400;1,700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cream: #FFF8F0;
+      --warm-white: #FFFCF7;
+      --orange: #FF6B35;
+      --orange-light: #FF8C5A;
+      --orange-pale: #FFE8DC;
+      --brown: #3D1F0D;
+      --brown-mid: #7A3B1E;
+      --yellow: #FFD166;
+      --yellow-pale: #FFF3CC;
+      --green: #06D6A0;
+      --green-pale: #D4F7EE;
+      --pink: #FF6B9D;
+      --pink-pale: #FFE0EE;
+      --purple: #9B5DE5;
+      --purple-pale: #EDE0FF;
+      --shadow: 0 4px 0px rgba(61,31,13,0.15);
+      --shadow-lg: 0 8px 0px rgba(61,31,13,0.12);
+      --shadow-xl: 0 12px 0px rgba(61,31,13,0.10);
+      --radius: 24px;
+      --radius-sm: 14px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Nunito', sans-serif;
+      background-color: var(--cream);
+      color: var(--brown);
+      overflow-x: hidden;
+    }
+
+    /* ─── NOISE TEXTURE OVERLAY ─── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 1000;
+      opacity: 0.5;
+    }
+
+    /* ─── NAV ─── */
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 40px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(255,248,240,0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 2px solid rgba(61,31,13,0.06);
+    }
+
+    .nav-logo {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--brown);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .nav-logo span { color: var(--orange); }
+
+    .nav-cta {
+      background: var(--orange);
+      color: white;
+      border: 2.5px solid var(--brown);
+      border-radius: 50px;
+      padding: 10px 22px;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 800;
+      font-size: 0.9rem;
+      cursor: pointer;
+      box-shadow: 3px 3px 0 var(--brown);
+      transition: all 0.15s ease;
+      text-decoration: none;
+    }
+    .nav-cta:hover { transform: translate(-1px, -1px); box-shadow: 4px 4px 0 var(--brown); }
+    .nav-cta:active { transform: translate(1px, 1px); box-shadow: 2px 2px 0 var(--brown); }
+
+    /* ─── HERO ─── */
+    .hero {
+      min-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 60px 24px 40px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Blobs */
+    .blob {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(70px);
+      opacity: 0.35;
+      animation: float 8s ease-in-out infinite;
+    }
+    .blob-1 { width: 500px; height: 500px; background: var(--yellow); top: -150px; left: -150px; animation-delay: 0s; }
+    .blob-2 { width: 400px; height: 400px; background: var(--orange-pale); top: 50px; right: -100px; animation-delay: 2s; }
+    .blob-3 { width: 300px; height: 300px; background: var(--pink-pale); bottom: -50px; left: 30%; animation-delay: 4s; }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0) scale(1); }
+      50% { transform: translateY(-20px) scale(1.05); }
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--yellow-pale);
+      border: 2px solid var(--brown);
+      border-radius: 50px;
+      padding: 8px 18px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--brown-mid);
+      margin-bottom: 28px;
+      box-shadow: 3px 3px 0 var(--brown);
+      animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s both;
+    }
+
+    @keyframes popIn {
+      from { opacity: 0; transform: scale(0.8) translateY(10px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    .hero h1 {
+      font-family: 'Fredoka', sans-serif;
+      font-size: clamp(3rem, 8vw, 7rem);
+      font-weight: 700;
+      line-height: 1;
+      color: var(--brown);
+      margin-bottom: 10px;
+      animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.35s both;
+    }
+
+    .hero h1 .highlight {
+      color: var(--orange);
+      display: inline-block;
+      animation: wobble 3s ease-in-out infinite;
+    }
+
+    @keyframes wobble {
+      0%, 100% { transform: rotate(-1deg); }
+      50% { transform: rotate(1.5deg); }
+    }
+
+    .hero-subtitle {
+      font-size: clamp(1rem, 2.5vw, 1.4rem);
+      font-weight: 600;
+      color: var(--brown-mid);
+      max-width: 560px;
+      line-height: 1.6;
+      margin-bottom: 40px;
+      animation: popIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.5s both;
+    }
+
+    /* ─── MASCOT GRID ─── */
+    .mascot-section {
+      padding: 20px 24px 0;
+      display: flex;
+      justify-content: center;
+      animation: popIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.65s both;
+    }
+
+    .mascot-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 12px;
+      max-width: 700px;
+      width: 100%;
+    }
+
+    .mascot-card {
+      aspect-ratio: 1;
+      background: var(--warm-white);
+      border: 2.5px solid var(--brown);
+      border-radius: var(--radius-sm);
+      box-shadow: 4px 4px 0 var(--brown);
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .mascot-card:hover {
+      transform: translate(-2px, -4px) rotate(-2deg);
+      box-shadow: 6px 8px 0 var(--brown);
+      z-index: 2;
+    }
+
+    .mascot-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* Placeholder emojis while images load */
+    .mascot-card .placeholder {
+      font-size: 2.5rem;
+      position: absolute;
+    }
+
+    .mascot-card img { position: relative; z-index: 1; }
+
+    /* ─── WAITLIST FORM ─── */
+    .waitlist-section {
+      padding: 80px 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      position: relative;
+    }
+
+    .waitlist-card {
+      background: var(--brown);
+      border-radius: var(--radius);
+      padding: 56px 48px;
+      max-width: 560px;
+      width: 100%;
+      box-shadow: 0 16px 0 rgba(61,31,13,0.2);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .waitlist-card::before {
+      content: '';
+      position: absolute;
+      top: -60px; right: -60px;
+      width: 200px; height: 200px;
+      background: var(--orange);
+      border-radius: 50%;
+      opacity: 0.15;
+    }
+
+    .waitlist-card::after {
+      content: '';
+      position: absolute;
+      bottom: -40px; left: -40px;
+      width: 150px; height: 150px;
+      background: var(--yellow);
+      border-radius: 50%;
+      opacity: 0.12;
+    }
+
+    .waitlist-card h2 {
+      font-family: 'Fredoka', sans-serif;
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      color: white;
+      margin-bottom: 12px;
+      line-height: 1.1;
+    }
+
+    .waitlist-card h2 em {
+      color: var(--yellow);
+      font-style: normal;
+    }
+
+    .waitlist-card p {
+      color: rgba(255,248,240,0.75);
+      font-size: 1rem;
+      margin-bottom: 32px;
+      line-height: 1.6;
+    }
+
+    .form-row {
+      display: flex;
+      gap: 10px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .form-input {
+      flex: 1;
+      padding: 16px 20px;
+      border-radius: 50px;
+      border: 2.5px solid transparent;
+      font-family: 'Nunito', sans-serif;
+      font-size: 1rem;
+      font-weight: 600;
+      background: var(--cream);
+      color: var(--brown);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .form-input::placeholder { color: rgba(61,31,13,0.4); }
+    .form-input:focus { border-color: var(--orange); box-shadow: 0 0 0 3px rgba(255,107,53,0.2); }
+
+    .form-btn {
+      padding: 16px 28px;
+      background: var(--orange);
+      color: white;
+      border: 2.5px solid var(--orange-pale);
+      border-radius: 50px;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 800;
+      font-size: 1rem;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .form-btn:hover { background: var(--orange-light); transform: translateY(-1px); }
+    .form-btn:active { transform: translateY(1px); }
+
+    .form-note {
+      color: rgba(255,248,240,0.5);
+      font-size: 0.8rem;
+      margin-top: 14px;
+    }
+
+    .success-msg {
+      display: none;
+      background: var(--green);
+      color: var(--brown);
+      border-radius: var(--radius-sm);
+      padding: 16px 24px;
+      font-weight: 700;
+      font-size: 1rem;
+      margin-top: 16px;
+      animation: popIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    /* ─── FEATURES ─── */
+    .features {
+      padding: 40px 24px 100px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .section-label {
+      text-align: center;
+      font-family: 'Fredoka', sans-serif;
+      font-size: 2.4rem;
+      font-weight: 600;
+      color: var(--brown);
+      margin-bottom: 48px;
+    }
+
+    .section-label span { color: var(--orange); }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+    }
+
+    .feature-card {
+      background: white;
+      border: 2.5px solid var(--brown);
+      border-radius: var(--radius);
+      padding: 32px 28px;
+      box-shadow: 5px 5px 0 var(--brown);
+      transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
+    }
+
+    .feature-card:hover {
+      transform: translate(-2px, -4px);
+      box-shadow: 7px 9px 0 var(--brown);
+    }
+
+    .feature-card:nth-child(1) { background: var(--orange-pale); }
+    .feature-card:nth-child(2) { background: var(--yellow-pale); }
+    .feature-card:nth-child(3) { background: var(--green-pale); }
+    .feature-card:nth-child(4) { background: var(--pink-pale); }
+    .feature-card:nth-child(5) { background: var(--purple-pale); }
+    .feature-card:nth-child(6) { background: var(--cream); }
+
+    .feature-icon {
+      font-size: 2.8rem;
+      margin-bottom: 16px;
+      display: block;
+      animation: wiggle 4s ease-in-out infinite;
+    }
+
+    .feature-card:nth-child(2) .feature-icon { animation-delay: 0.5s; }
+    .feature-card:nth-child(3) .feature-icon { animation-delay: 1s; }
+    .feature-card:nth-child(4) .feature-icon { animation-delay: 1.5s; }
+    .feature-card:nth-child(5) .feature-icon { animation-delay: 2s; }
+    .feature-card:nth-child(6) .feature-icon { animation-delay: 2.5s; }
+
+    @keyframes wiggle {
+      0%, 90%, 100% { transform: rotate(0deg); }
+      93% { transform: rotate(-8deg); }
+      96% { transform: rotate(8deg); }
+    }
+
+    .feature-card h3 {
+      font-family: 'Fredoka', sans-serif;
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: var(--brown);
+      margin-bottom: 8px;
+    }
+
+    .feature-card p {
+      font-size: 0.95rem;
+      color: var(--brown-mid);
+      line-height: 1.6;
+    }
+
+    /* ─── NOTIFICATION MOCKUP ─── */
+    .demo-section {
+      padding: 40px 24px 100px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .phone-mockup {
+      width: 300px;
+      background: var(--brown);
+      border-radius: 44px;
+      padding: 16px;
+      box-shadow: 0 30px 60px rgba(61,31,13,0.3), 0 0 0 3px var(--brown);
+      position: relative;
+    }
+
+    .phone-screen {
+      background: var(--cream);
+      border-radius: 32px;
+      padding: 30px 20px;
+      min-height: 560px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .phone-notch {
+      width: 80px;
+      height: 26px;
+      background: var(--brown);
+      border-radius: 0 0 16px 16px;
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+
+    .notification-bubble {
+      background: white;
+      border: 2px solid var(--brown);
+      border-radius: 18px;
+      padding: 16px 18px;
+      width: 100%;
+      box-shadow: 3px 3px 0 var(--brown);
+      animation: slideDown 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) infinite alternate;
+    }
+
+    @keyframes slideDown {
+      from { transform: translateY(-4px); }
+      to { transform: translateY(4px); }
+    }
+
+    .notif-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .notif-app-icon {
+      width: 28px; height: 28px;
+      background: var(--orange);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+    }
+
+    .notif-app-name {
+      font-size: 0.7rem;
+      font-weight: 800;
+      color: var(--brown-mid);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .notif-time {
+      font-size: 0.7rem;
+      color: rgba(61,31,13,0.4);
+      margin-left: auto;
+    }
+
+    .notif-text {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--brown);
+      line-height: 1.4;
+    }
+
+    .nibble-big {
+      font-size: 5rem;
+      animation: bounce 1s ease-in-out infinite alternate;
+    }
+
+    @keyframes bounce {
+      from { transform: translateY(0) rotate(-3deg); }
+      to { transform: translateY(-10px) rotate(3deg); }
+    }
+
+    .btn-pair {
+      display: flex;
+      gap: 10px;
+      width: 100%;
+    }
+
+    .btn-yes {
+      flex: 1;
+      background: var(--green);
+      color: var(--brown);
+      border: 2px solid var(--brown);
+      border-radius: 50px;
+      padding: 12px;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 800;
+      font-size: 0.95rem;
+      cursor: pointer;
+      box-shadow: 3px 3px 0 var(--brown);
+      transition: all 0.15s;
+    }
+
+    .btn-no {
+      flex: 1;
+      background: var(--pink);
+      color: white;
+      border: 2px solid var(--brown);
+      border-radius: 50px;
+      padding: 12px;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 800;
+      font-size: 0.95rem;
+      cursor: pointer;
+      box-shadow: 3px 3px 0 var(--brown);
+      transition: all 0.15s;
+    }
+
+    .btn-yes:hover, .btn-no:hover { transform: translateY(-2px); }
+
+    .speech-bubble {
+      position: relative;
+      background: var(--orange);
+      color: white;
+      border-radius: 18px;
+      border: 2px solid var(--brown);
+      padding: 14px 18px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      line-height: 1.4;
+      box-shadow: 3px 3px 0 var(--brown);
+    }
+
+    .speech-bubble::after {
+      content: '';
+      position: absolute;
+      bottom: -14px;
+      left: 50%;
+      transform: translateX(-50%);
+      border: 7px solid transparent;
+      border-top-color: var(--brown);
+    }
+
+    .speech-bubble::before {
+      content: '';
+      position: absolute;
+      bottom: -11px;
+      left: 50%;
+      transform: translateX(-50%);
+      border: 6px solid transparent;
+      border-top-color: var(--orange);
+      z-index: 1;
+    }
+
+    /* ─── WHO IS IT FOR ─── */
+    .for-section {
+      background: var(--brown);
+      padding: 80px 24px;
+      text-align: center;
+    }
+
+    .for-section h2 {
+      font-family: 'Fredoka', sans-serif;
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      color: white;
+      margin-bottom: 12px;
+    }
+
+    .for-section h2 em { color: var(--yellow); font-style: normal; }
+
+    .for-section > p {
+      color: rgba(255,248,240,0.65);
+      margin-bottom: 48px;
+      font-size: 1rem;
+    }
+
+    .tags-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      justify-content: center;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    .tag {
+      background: rgba(255,248,240,0.1);
+      color: var(--cream);
+      border: 2px solid rgba(255,248,240,0.2);
+      border-radius: 50px;
+      padding: 10px 20px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      transition: all 0.2s;
+      cursor: default;
+    }
+
+    .tag:hover {
+      background: var(--orange);
+      border-color: var(--orange);
+      transform: scale(1.05) rotate(-1deg);
+    }
+
+    /* ─── FOOTER ─── */
+    footer {
+      background: var(--brown);
+      border-top: 2px solid rgba(255,248,240,0.1);
+      padding: 32px 24px;
+      text-align: center;
+      color: rgba(255,248,240,0.4);
+      font-size: 0.85rem;
+    }
+
+    footer strong { color: rgba(255,248,240,0.7); }
+
+    /* ─── SCROLL ANIMATIONS ─── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.6s ease, transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 600px) {
+      nav { padding: 16px 20px; }
+      .waitlist-card { padding: 36px 24px; }
+      .form-row { flex-direction: column; }
+      .form-btn { justify-content: center; }
+      .mascot-grid { grid-template-columns: repeat(3, 1fr); max-width: 340px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <div class="nav-logo">🐹 <span>Nibble</span></div>
+    <a href="#waitlist" class="nav-cta">Join Waitlist 🎉</a>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+
+    <div class="hero-badge">🚀 Coming Soon &nbsp;·&nbsp; Join 500+ on the waitlist</div>
+
+    <h1>
+      Did<span class="highlight">I</span>Eat<br>Today?
+    </h1>
+
+    <p class="hero-subtitle">
+      Meet <strong>Nibble</strong> — the chubby AI hamster who lives on your phone and is <em>deeply offended</em> every time you forget to eat. No calorie counting. No guilt trips. Just a tiny hamster who cares.
+    </p>
+
+    <!-- MASCOT GRID -->
+    <div class="mascot-section">
+      <div class="mascot-grid">
+        <div class="mascot-card" title="Nibble: Happy">
+          <img src="nibble-happy.png" alt="Nibble happy with fork">
+        </div>
+        <div class="mascot-card" title="Nibble: Worried">
+          <img src="nibble-worried.png" alt="Nibble worried arms crossed">
+        </div>
+        <div class="mascot-card" title="Nibble: Celebrating">
+          <img src="nibble-celebrating.png" alt="Nibble celebrating with confetti">
+        </div>
+        <div class="mascot-card" title="Nibble: Pointing">
+          <img src="nibble-pointing.png" alt="Nibble pointing accusingly">
+        </div>
+        <div class="mascot-card" title="Nibble: EAT Sign">
+          <img src="nibble-sign.png" alt="Nibble holding EAT sign">
+        </div>
+        <div class="mascot-card" title="Nibble: Sleeping">
+          <img src="nibble-sleeping.png" alt="Nibble sleeping">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- WAITLIST FORM -->
+  <section class="waitlist-section" id="waitlist">
+    <div class="waitlist-card reveal">
+      <h2>Nibble wants to <em>find you.</em></h2>
+      <p>Be the first to know when we launch. No spam, we promise — just Nibble, eventually, asking if you've eaten.</p>
+
+      <!-- FormSpree: replace YOUR_FORM_ID with your actual FormSpree form ID -->
+      <form
+        action="https://formspree.io/f/YOUR_FORM_ID"
+        method="POST"
+        id="waitlist-form"
+      >
+        <div class="form-row">
+          <input
+            type="email"
+            name="email"
+            class="form-input"
+            placeholder="your@email.com"
+            required
+            autocomplete="email"
+          />
+          <button type="submit" class="form-btn">
+            Count me in 🐹
+          </button>
+        </div>
+        <p class="form-note">No spam. Unsubscribe anytime. Nibble is watching though.</p>
+      </form>
+
+      <div class="success-msg" id="success-msg">
+        🎉 You're on the list! Nibble is already excited to meet you.
+      </div>
+    </div>
+  </section>
+
+  <!-- PHONE DEMO -->
+  <section class="demo-section reveal">
+    <p class="section-label" style="margin-bottom: 40px;">What it <span>feels like</span> 📱</p>
+    <div class="phone-mockup">
+      <div class="phone-screen">
+        <div class="phone-notch"></div>
+
+        <div class="notification-bubble">
+          <div class="notif-header">
+            <div class="notif-app-icon">🐹</div>
+            <span class="notif-app-name">DidIEatToday</span>
+            <span class="notif-time">2:14 PM</span>
+          </div>
+          <div class="notif-text">EXCUSE ME. Have you eaten?? I've been worried SICK. 😤🍴</div>
+        </div>
+
+        <div class="speech-bubble">Hey bestie... was that just coffee again?? 👀</div>
+
+        <div class="nibble-big"><img src="nibble-sign.png" alt="Nibble" style="width:110px; height:110px; object-fit:contain;"></div>
+
+        <div class="btn-pair">
+          <button class="btn-yes">✅ Yes I ate!</button>
+          <button class="btn-no">😬 Not yet...</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section class="features">
+    <p class="section-label reveal">Why <span>Nibble</span> is different</p>
+    <div class="features-grid">
+      <div class="feature-card reveal">
+        <span class="feature-icon">🧠</span>
+        <h3>AI That Learns You</h3>
+        <p>Nibble remembers your patterns. Skip lunch three days in a row? He'll start reminding you earlier — without you having to set anything.</p>
+      </div>
+      <div class="feature-card reveal">
+        <span class="feature-icon">🚫</span>
+        <h3>Zero Food Logging</h3>
+        <p>No calories. No macros. No meal plans. The only question is: did you eat? Yes or no. That's it. Nibble keeps it simple.</p>
+      </div>
+      <div class="feature-card reveal">
+        <span class="feature-icon">💬</span>
+        <h3>Real Personality</h3>
+        <p>Nibble is funny, warm, and occasionally dramatic. He adapts his tone — silly when you're good, gentle when you're struggling, firm when needed.</p>
+      </div>
+      <div class="feature-card reveal">
+        <span class="feature-icon">🎭</span>
+        <h3>Choose Your Nibble</h3>
+        <p>Prefer a disappointed grandma? A hype-man golden retriever? A dramatic cat? Pick the companion that speaks to your soul.</p>
+      </div>
+      <div class="feature-card reveal">
+        <span class="feature-icon">🔔</span>
+        <h3>Smart Nudges</h3>
+        <p>Not too many. Not too few. Nibble figures out the right moment to check in — so it never feels like nagging.</p>
+      </div>
+      <div class="feature-card reveal">
+        <span class="feature-icon">❤️</span>
+        <h3>Built for ADHD Brains</h3>
+        <p>Made for people who hyperfocus into the void, forget time exists, and look up at 5pm wondering why their head hurts.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- WHO IS IT FOR -->
+  <section class="for-section">
+    <h2>This is for <em>you</em> if...</h2>
+    <p>You've ever had a headache at 4pm and realized food might be the reason.</p>
+    <div class="tags-container">
+      <div class="tag">🧠 ADHD haver</div>
+      <div class="tag">💻 Remote worker</div>
+      <div class="tag">🎓 Student</div>
+      <div class="tag">😔 Anxiety brain</div>
+      <div class="tag">🚀 Founder mode</div>
+      <div class="tag">🎨 Creative in the zone</div>
+      <div class="tag">💡 Developer</div>
+      <div class="tag">😮‍💨 Depression fog</div>
+      <div class="tag">📱 Chronically online</div>
+      <div class="tag">☕ Runs on coffee</div>
+      <div class="tag">🕐 Time-blind person</div>
+      <div class="tag">🤷 "I just forgot" person</div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <p>Made with 🧡 and a concerning amount of skipped lunches &nbsp;·&nbsp; <strong>DidIEatToday? ft. Nibble</strong></p>
+    <p style="margin-top:8px;">© 2025 DidIEatToday. All rights reserved. 🐹</p>
+    <p style="margin-top:10px;">
+      Built with ❤️ by <a href="https://x.com/yourhandle" target="_blank" rel="noopener noreferrer" style="color:rgba(255,248,240,0.7); font-weight:800; text-decoration:none; border-bottom: 1px solid rgba(255,248,240,0.3); transition: color 0.2s;" onmouseover="this.style.color='#FF6B35'" onmouseout="this.style.color='rgba(255,248,240,0.7)'">Wish</a>
+    </p>
+  </footer>
+
+  <script>
+    // ─── FORMSPREE AJAX SUBMIT ───
+    const form = document.getElementById('waitlist-form');
+    const successMsg = document.getElementById('success-msg');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const data = new FormData(form);
+
+      try {
+        const res = await fetch(form.action, {
+          method: 'POST',
+          body: data,
+          headers: { 'Accept': 'application/json' }
+        });
+
+        if (res.ok) {
+          form.style.display = 'none';
+          successMsg.style.display = 'block';
+        } else {
+          alert('Oops! Something went wrong. Try again?');
+        }
+      } catch {
+        alert('Network error. Please try again!');
+      }
+    });
+
+    // ─── SCROLL REVEAL ───
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(el => {
+        if (el.isIntersecting) {
+          el.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+  </script>
+
+</body>
+</html>
